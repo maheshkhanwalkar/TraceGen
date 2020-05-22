@@ -1,4 +1,5 @@
 #include "ExecutableFormat.h"
+#include <sys/stat.h>
 #include <fstream>
 
 using namespace tg;
@@ -8,18 +9,22 @@ ExecutableFormat::ExecutableFormat(std::string file)
 
 bool ExecutableFormat::read()
 {
-    std::ifstream stream(file, std::ios_base::binary);
-    stream.seekg(std::ios::end);
+    struct stat st{};
+    int res = stat(file.c_str(), &st);
 
-    uint64_t size = stream.tellg();
-    stream.seekg(std::ios::beg);
+    // Could not stat() the file
+    if(res == -1) {
+        return false;
+    }
 
+    uint64_t size = st.st_size;
     data = std::vector<char>(size);
+
+    std::ifstream stream(file, std::ios_base::binary);
     stream.read(data.data(), size);
 
-    // Status of the read
-    bool res = !stream.fail();
-
+    bool success = !stream.fail();
     stream.close();
-    return res;
+
+    return success;
 }
