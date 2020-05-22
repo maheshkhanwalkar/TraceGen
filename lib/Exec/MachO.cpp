@@ -89,7 +89,8 @@ struct Mach64_Section {
 
 using namespace tg;
 
-MachO::MachO(std::string file) : ExecutableFormat(std::move(file)) {}
+MachO::MachO(std::string file)
+    : ExecutableFormat(std::move(file)), text(), v_addr() {}
 
 /**
  * Adjust the load command header pointer to the next header
@@ -100,6 +101,17 @@ static inline Mach64_Load_Cmd* adjust_ptr(Mach64_Load_Cmd* curr)
 {
     auto* raw = reinterpret_cast<char*>(curr);
     return reinterpret_cast<Mach64_Load_Cmd*>(raw + curr->size);
+}
+
+/**
+ * Get the first section header for the given segment
+ * @param cmd - segment to compute for
+ * @return a pointer to the first section header
+ */
+static inline Mach64_Section* section_ptr(Mach64_Segment_Cmd* cmd)
+{
+    auto* raw = reinterpret_cast<char*>(cmd);
+    return reinterpret_cast<Mach64_Section*>(raw + sizeof(Mach64_Segment_Cmd));
 }
 
 void MachO::parse()
@@ -123,7 +135,7 @@ void MachO::parse()
     auto* ld_hdr = reinterpret_cast<Mach64_Load_Cmd*>(data.data() + sizeof(Mach64_Hdr));
 
     for(uint32_t i = 0; i < hdr->n_cmd; i++) {
-        // Skip this load command
+        // Skip all non-segment load commands
         if(ld_hdr->cmd != LC_SEGMENT_64) {
             ld_hdr = adjust_ptr(ld_hdr);
             continue;
@@ -140,7 +152,35 @@ void MachO::parse()
             continue;
         }
 
-        // TODO process the sections that make up the __TEXT segment
-        ld_hdr = adjust_ptr(ld_hdr);
+        auto* section = section_ptr(seg);
+
+        for(uint32_t j = 0; j < seg->n_sect; j++) {
+            /**
+             * The __TEXT segment contains a few different sections, but the only
+             * one that is actually useful here is the __text section.
+             */
+            if(std::string(section[j].sec_name) != "__text") {
+                continue;
+            }
+
+            /**
+             * Copy the __text section
+             */
+            auto start = data.begin() + section->f_off;
+            auto end = start + section->size;
+            text = std::vector<char>(start, end);
+            v_addr = section->addr;
+
+            break;
+        }
+
+        /**
+         * The __TEXT segment was processed above
+         *
+         * There is no need to continue looking at the other segments within the
+         * executable, since they are anyways just going to be ignored.
+         */
+
+        break;
     }
 }

@@ -28,6 +28,10 @@ public:
      */
     void parse() override;
 
+private:
+    std::vector<char> text;
+    uint64_t v_addr;
+
 };
 
 }
