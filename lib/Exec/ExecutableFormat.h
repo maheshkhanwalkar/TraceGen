@@ -58,7 +58,7 @@ public:
      */
     virtual ~ExecutableFormat() = default;
 
-private:
+protected:
     std::string file;
     std::vector<char> data;
 };

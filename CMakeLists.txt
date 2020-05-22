@@ -4,4 +4,7 @@ project(TraceGen)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
+include_directories(.)
+
 add_subdirectory(lib)
+# add_subdirectory(test)

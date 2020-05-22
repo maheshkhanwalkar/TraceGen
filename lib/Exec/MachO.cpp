@@ -12,23 +12,24 @@
  * given executable files (which it will run after the initial parse step)
  */
 
-#define CPU_TYPE_X86 7
-#define CPU_ARCH_ABI64 0x01000000
-#define	CPU_TYPE_X86_64	(CPU_TYPE_X86 | CPU_ARCH_ABI64)
-#define MACHO_64_MAGIC 0xfeedfacf
-#define MH_EXEC 2
+#define CPU_TYPE_X86 7U
+#define CPU_ARCH_ABI64 0x01000000U
+#define CPU_TYPE_X86_64 (CPU_TYPE_X86 | CPU_ARCH_ABI64)
+#define MACH64_MAGIC 0xfeedfacfU
+#define MH_EXEC 2U
 
 /**
  * 64-bit MachO header format
  */
 struct Mach64_Hdr {
-    uint32_t magic; /* MACHO_64_MAGIC */
-    int cpu_type; /* CPU_TYPE_{X86,X86_64} */
+    uint32_t magic; /* MACH64_MAGIC */
+    int cpu_type; /* CPU_TYPE_X86_64 */
     int cpu_subtype; /* don't care */
-    uint32_t file_type;
+    uint32_t file_type /* MH_EXEC */;
     uint32_t n_cmd; /* number of load commands */
     uint32_t tot_cmd_sz; /* total size of all the load commands */
     uint32_t flags;
+    uint32_t reserved;
 };
 
 /**
@@ -40,6 +41,7 @@ struct Mach64_Hdr {
  * the next command, continuing until all the commands have been either processed or
  * skipped.
  */
+
 #define LC_SEGMENT_64 0x19
 
 /**
@@ -89,7 +91,56 @@ using namespace tg;
 
 MachO::MachO(std::string file) : ExecutableFormat(std::move(file)) {}
 
+/**
+ * Adjust the load command header pointer to the next header
+ * @param curr - current header
+ * @return a pointer to the next header
+ */
+static inline Mach64_Load_Cmd* adjust_ptr(Mach64_Load_Cmd* curr)
+{
+    auto* raw = reinterpret_cast<char*>(curr);
+    return reinterpret_cast<Mach64_Load_Cmd*>(raw + curr->size);
+}
+
 void MachO::parse()
 {
-    // TODO
+    auto* hdr = reinterpret_cast<Mach64_Hdr*>(data.data());
+
+    /**
+     * The provided file should be:
+     *    [+] 64-bit MachO
+     *    [+] x86_64 platform
+     *    [+] Executable
+     */
+    bool good = hdr->magic == MACH64_MAGIC &&
+            hdr->cpu_type == CPU_TYPE_X86_64 &&
+            hdr->file_type == MH_EXEC;
+
+    if(!good) {
+        throw std::runtime_error("unsupported executable type provided\n");
+    }
+
+    auto* ld_hdr = reinterpret_cast<Mach64_Load_Cmd*>(data.data() + sizeof(Mach64_Hdr));
+
+    for(uint32_t i = 0; i < hdr->n_cmd; i++) {
+        // Skip this load command
+        if(ld_hdr->cmd != LC_SEGMENT_64) {
+            ld_hdr = adjust_ptr(ld_hdr);
+            continue;
+        }
+
+        auto* seg = reinterpret_cast<Mach64_Segment_Cmd*>(ld_hdr);
+
+        /**
+         * Only process the __TEXT segment, since that is where the actual
+         * executable code resides.
+         */
+        if(std::string(seg->name) != "__TEXT") {
+            ld_hdr = adjust_ptr(ld_hdr);
+            continue;
+        }
+
+        // TODO process the sections that make up the __TEXT segment
+        ld_hdr = adjust_ptr(ld_hdr);
+    }
 }
