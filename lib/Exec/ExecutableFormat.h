@@ -1,4 +1,8 @@
 #pragma once
+#include <string>
+#include <vector>
+
+namespace tg {
 
 /**
  * Executable Format
@@ -20,5 +24,43 @@
  * exposed (and implemented) in this library.
  */
 class ExecutableFormat {
+public:
+    /**
+     * Construct an executable format object with the provided
+     * file as the underlying data to process.
+     *
+     * @param file - underlying file to process
+     */
+    explicit ExecutableFormat(std::string file);
 
+    /**
+     * Read the executable file
+     *
+     * This stores the entire raw file within the internal buffer. However, this
+     * raw format is not yet usable -- the file *must* be parsed first. Only then
+     * will the other methods dealing with specific executable sections can be used.
+     *
+     * @return true if successful, false otherwise
+     */
+    bool read();
+
+    /**
+     * Parse the loaded file, identifying the various sections and initialising
+     * any internal data structures, as needed.
+     *
+     * This method is pure virtual since the parsing will be dependent on the
+     * actual type of executable format (i.e. ELF, Mach-O, PE/COFF)
+     */
+    virtual void parse() = 0;
+
+    /**
+     * Destroy the executable format
+     */
+    virtual ~ExecutableFormat() = default;
+
+private:
+    std::string file;
+    std::vector<char> data;
 };
+
+}
