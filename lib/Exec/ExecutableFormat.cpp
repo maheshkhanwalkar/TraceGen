@@ -4,17 +4,14 @@
 
 using namespace tg;
 
-ExecutableFormat::ExecutableFormat(std::string file)
-    : file(std::move(file)), data() {}
-
-bool ExecutableFormat::read()
+void ExecutableFormat::read(const std::string& file)
 {
     struct stat st{};
     int res = stat(file.c_str(), &st);
 
     // Could not stat() the file
     if(res == -1) {
-        return false;
+        throw std::runtime_error("could not stat() file\n");
     }
 
     uint64_t size = st.st_size;
@@ -26,5 +23,7 @@ bool ExecutableFormat::read()
     bool success = !stream.fail();
     stream.close();
 
-    return success;
+    if(!success) {
+        throw std::runtime_error("could not read the file\n");
+    }
 }

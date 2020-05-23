@@ -89,9 +89,6 @@ struct Mach64_Section {
 
 using namespace tg;
 
-MachO::MachO(std::string file)
-    : ExecutableFormat(std::move(file)), text(), v_addr() {}
-
 /**
  * Adjust the load command header pointer to the next header
  * @param curr - current header
@@ -114,8 +111,9 @@ static inline Mach64_Section* section_ptr(Mach64_Segment_Cmd* cmd)
     return reinterpret_cast<Mach64_Section*>(raw + sizeof(Mach64_Segment_Cmd));
 }
 
-void MachO::parse()
+Metadata MachO::parse(const std::string& file)
 {
+    read(file);
     auto* hdr = reinterpret_cast<Mach64_Hdr*>(data.data());
 
     /**
@@ -168,29 +166,23 @@ void MachO::parse()
              */
             auto start = data.begin() + section->f_off;
             auto end = start + section->size;
-            text = std::vector<char>(start, end);
-            v_addr = section->addr;
 
-            break;
+            Metadata data(std::vector<char>(start, end), section->addr);
+            return data;
         }
-
-        /**
-         * The __TEXT segment was processed above
-         *
-         * There is no need to continue looking at the other segments within the
-         * executable, since they are anyways just going to be ignored.
-         */
-
-        break;
     }
-}
 
-const std::vector<char>& MachO::getTextSection()
-{
-    return text;
-}
+    /**
+     * Control flow should never reach here for valid executables
+     *
+     * This is because reaching this point implies that the __text section was not
+     * reached while looking through the __TEXT segment or perhaps there was no
+     * such segment in the first place.
+     *
+     * Either way, signal this error condition by throwing an exception, since this
+     * is cleaner than trying to return some metadata object that ``represents'' an
+     * invalid state.
+     */
 
-uint64_t MachO::getTextAddr()
-{
-    return v_addr;
+    throw std::runtime_error("invalid MachO executable -- missing __text section!\n");
 }

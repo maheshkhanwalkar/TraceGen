@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "Metadata.h"
+
 namespace tg {
 
 /**
@@ -26,12 +28,29 @@ namespace tg {
 class ExecutableFormat {
 public:
     /**
-     * Construct an executable format object with the provided
-     * file as the underlying data to process.
-     *
-     * @param file - underlying file to process
+     * Construct an executable format object
      */
-    explicit ExecutableFormat(std::string file);
+    explicit ExecutableFormat() = default;
+
+    /**
+     * Parse the provided file, identifying the various sections and initialising
+     * any internal data structures, as needed.
+     *
+     * This method is pure virtual since the parsing will be dependent on the
+     * actual type of executable format (i.e. ELF, Mach-O, PE/COFF)
+     *
+     * @param file - file to read and parse
+     * @return the parsed metadata
+     */
+    virtual Metadata parse(const std::string& file) = 0;
+
+    /**
+     * Destroy the executable format
+     */
+    virtual ~ExecutableFormat() = default;
+
+protected:
+    std::vector<char> data;
 
     /**
      * Read the executable file
@@ -40,39 +59,10 @@ public:
      * raw format is not yet usable -- the file *must* be parsed first. Only then
      * will the other methods dealing with specific executable sections can be used.
      *
-     * @return true if successful, false otherwise
+     * @param file - file to read
+     * @throws std::runtime_error for any I/O-related problems
      */
-    bool read();
-
-    /**
-     * Parse the loaded file, identifying the various sections and initialising
-     * any internal data structures, as needed.
-     *
-     * This method is pure virtual since the parsing will be dependent on the
-     * actual type of executable format (i.e. ELF, Mach-O, PE/COFF)
-     */
-    virtual void parse() = 0;
-
-    /**
-     * Get the text section of the executable
-     * @return the text section bytes
-     */
-    virtual const std::vector<char>& getTextSection() = 0;
-
-    /**
-     * Get the address of the text section
-     * @return the address
-     */
-    virtual uint64_t getTextAddr() = 0;
-
-    /**
-     * Destroy the executable format
-     */
-    virtual ~ExecutableFormat() = default;
-
-protected:
-    std::string file;
-    std::vector<char> data;
+    void read(const std::string& file);
 };
 
 }

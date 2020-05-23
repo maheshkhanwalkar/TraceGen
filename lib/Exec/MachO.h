@@ -13,37 +13,19 @@ namespace tg {
  * sections within the provided executable.
  */
 class MachO : public ExecutableFormat {
-
 public:
     /**
-     * Construct an MachO object with the provided file as the underlying
-     * data to process.
+     * Construct an MachO parser
+     */
+    explicit MachO() = default;
+
+    /**
+     * Parse the provided MachO file
      *
-     * @param file - underlying file to process
+     * The __text section (from __TEXT segment) and the starting virtual
+     * address are extracted and returned within a metadata object.
      */
-    explicit MachO(std::string file);
-
-    /**
-     * Parse the MachO file
-     */
-    void parse() override;
-
-    /**
-     * Get the __text section (from __TEXT segment)
-     * @return the bytes of the section
-     */
-    const std::vector<char> & getTextSection() override;
-
-    /**
-     * Get the virtual address of the __text section
-     * @return the starting virtual address
-     */
-    uint64_t getTextAddr() override;
-
-private:
-    std::vector<char> text;
-    uint64_t v_addr;
-
+     Metadata parse(const std::string& file) override;
 };
 
 }
