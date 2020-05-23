@@ -184,3 +184,13 @@ void MachO::parse()
         break;
     }
 }
+
+const std::vector<char>& MachO::getTextSection()
+{
+    return text;
+}
+
+uint64_t MachO::getTextAddr()
+{
+    return v_addr;
+}

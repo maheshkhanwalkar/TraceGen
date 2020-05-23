@@ -28,6 +28,18 @@ public:
      */
     void parse() override;
 
+    /**
+     * Get the __text section (from __TEXT segment)
+     * @return the bytes of the section
+     */
+    const std::vector<char> & getTextSection() override;
+
+    /**
+     * Get the virtual address of the __text section
+     * @return the starting virtual address
+     */
+    uint64_t getTextAddr() override;
+
 private:
     std::vector<char> text;
     uint64_t v_addr;

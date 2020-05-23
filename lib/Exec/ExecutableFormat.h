@@ -54,6 +54,18 @@ public:
     virtual void parse() = 0;
 
     /**
+     * Get the text section of the executable
+     * @return the text section bytes
+     */
+    virtual const std::vector<char>& getTextSection() = 0;
+
+    /**
+     * Get the address of the text section
+     * @return the address
+     */
+    virtual uint64_t getTextAddr() = 0;
+
+    /**
      * Destroy the executable format
      */
     virtual ~ExecutableFormat() = default;
