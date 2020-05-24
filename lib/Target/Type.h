@@ -10,7 +10,7 @@ namespace tg {
  * corresponding type to this enum.
  */
 enum class TargetType {
-    x86_64
+    X86_64
 };
 
 }
