@@ -58,6 +58,31 @@ static size_t decode_one(const std::vector<char>& data, size_t start, uint64_t t
         start += 1;
     }
 
+    /**
+     * The current byte can be one of two things:
+     *    1. The opcode
+     *    2. Escape opcode: 0x0F
+     *
+     * Option 2 is the opcode required for all instructions which have
+     * opcodes of length 2 or 3 (0x0F is included in this count)
+     */
+    if(data.at(start) == 0x0F) {
+        consumed += 1;
+        start += 1;
+
+        // TODO start decoding the next byte
+    }
+    else {
+        /**
+         * 1-byte opcode
+         *
+         * The byte at data[start] is the opcode (no escape opcode), so
+         * it can be analysed directly to find out what it is
+         */
+
+        // TODO decode the next byte
+    }
+
     return consumed;
 }
 
