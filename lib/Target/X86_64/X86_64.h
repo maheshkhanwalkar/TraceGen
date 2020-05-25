@@ -1,5 +1,5 @@
 #pragma once
-#include "Target.h"
+#include "lib/Target/Target.h"
 
 namespace tg {
 
@@ -14,11 +14,11 @@ public:
     explicit X86_64();
 
     /**
-     * Parse the given x86_64 machine code
+     * Decode the given x86_64 machine code
      * @param data - machine code to parse
      * @param start_addr - starting virtual address of the first instruction
      */
-    void parse(const std::vector<char>& data, uint64_t start_addr) override;
+    void decode(const std::vector<char>& data, uint64_t start_addr) override;
 };
 
 }

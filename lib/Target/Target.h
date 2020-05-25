@@ -34,7 +34,7 @@ public:
     TargetType getType();
 
     /**
-     * Parse the given machine code
+     * Decode the given machine code
      *
      * TODO change the method return signature -- this will eventually return
      *  a vector of instructions (or something like that...)
@@ -42,7 +42,7 @@ public:
      * @param data - raw machine code bytes
      * @param start_addr - starting address of the first byte
      */
-    virtual void parse(const std::vector<char>& data, uint64_t start_addr) = 0;
+    virtual void decode(const std::vector<char>& data, uint64_t start_addr) = 0;
 
 private:
     TargetType type;
