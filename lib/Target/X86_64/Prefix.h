@@ -27,13 +27,8 @@ namespace tg {
  *   + Branch hints (encoded 0x2e - NT, 0x3e - T) are also not supported. These
  *     are ignored in modern architectures, so it is safe to ignore. Any branch
  *     that does have these prefixes will be mislabelled as {CS,DS}_SEG_OVERRIDE
- *
- * TODO:
- *   + Handle the REX prefix. This is different from the other prefixes in that is it
- *     used only in 64-bit mode to indicate operands are 64-bit wide. It is still yet
- *     to be determined whether that will be handled here or dealt with somewhere else.
  */
-enum Prefix : unsigned char {
+enum class Prefix : unsigned char {
     // Group 1 prefixes
     LOCK =  0xf0, /* lock prefix */
     REPNZ = 0xf2, /* repeat not zero (not equal) */
@@ -54,10 +49,35 @@ enum Prefix : unsigned char {
     ADDR_SIZE_OVERRIDE = 0x67,
 
     // Invalid prefix
-    // This is used during prefix decoding to indicate that
-    // the provided byte does not match any prefix
-    INVALID
+    // This is used during prefix decoding to indicate that the provided byte
+    // does not match any prefix. The encoding 0x00 was chosen since it is recognisable
+    INVALID = 0x00
 };
+
+
+/**
+ * REX prefix
+ */
+enum class RexPrefix : unsigned char {
+    REX = 0x40,
+    REX_B,
+    REX_X,
+    REX_XB,
+    REX_R,
+    REX_RB,
+    REX_RX,
+    REX_RXB,
+    REX_W,
+    REX_WB,
+    REX_WX,
+    REX_WRX,
+    REX_WRXB,
+
+    // Invalid REX prefix -- this is used to indicate that
+    // the provided byte is not a REX prefix.
+    INVALID = 0xFF
+};
+
 
 /**
  * Decode the given byte, returning the prefix it represents
@@ -65,5 +85,12 @@ enum Prefix : unsigned char {
  * @return the equivalent prefix or invalid prefix
  */
 Prefix decode_prefix(unsigned char byte);
+
+/**
+ * Decode the given byte, returning the REX prefix it represents
+ * @param byte - byte to decode
+ * @return the equivalent REX prefix or invalid prefix
+ */
+RexPrefix decode_rex(unsigned char byte);
 
 }

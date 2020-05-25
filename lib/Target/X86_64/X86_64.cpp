@@ -43,9 +43,20 @@ static size_t decode_one(const std::vector<char>& data, size_t start, uint64_t t
     uint64_t i_addr = text_start + start;
     (void)i_addr;
 
-    // Decode all the prefixes
+    // Decode all the legacy prefixes
     std::vector<Prefix> prefixes = decode_prefixes(data, start);
+
     consumed += prefixes.size();
+    start += consumed;
+
+    // Decode the REX prefix, if it exists
+    RexPrefix rex = decode_rex(data.at(start));
+
+    if(rex != RexPrefix::INVALID) {
+        // Valid REX -- so one byte was consumed
+        consumed += 1;
+        start += 1;
+    }
 
     return consumed;
 }
