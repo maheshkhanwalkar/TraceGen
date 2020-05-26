@@ -78,19 +78,22 @@ enum class RexPrefix : unsigned char {
     INVALID = 0xFF
 };
 
+class PrefixDecoder {
 
-/**
- * Decode the given byte, returning the prefix it represents
- * @param byte - byte to decode
- * @return the equivalent prefix or invalid prefix
- */
-Prefix decode_prefix(unsigned char byte);
+public:
+    /**
+     * Decode the given byte, returning the prefix it represents
+     * @param byte - byte to decode
+     * @return the equivalent prefix or invalid prefix
+     */
+    static Prefix decode_prefix(unsigned char byte);
 
-/**
- * Decode the given byte, returning the REX prefix it represents
- * @param byte - byte to decode
- * @return the equivalent REX prefix or invalid prefix
- */
-RexPrefix decode_rex(unsigned char byte);
+    /**
+     * Decode the given byte, returning the REX prefix it represents
+     * @param byte - byte to decode
+     * @return the equivalent REX prefix or invalid prefix
+     */
+    static RexPrefix decode_rex(unsigned char byte);
+};
 
 }

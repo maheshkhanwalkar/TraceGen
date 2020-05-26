@@ -15,7 +15,7 @@ static std::vector<Prefix> decode_prefixes(const std::vector<char>& data, size_t
 
     while(start < data.size()) {
         char byte = data.at(start);
-        Prefix equiv = decode_prefix(byte);
+        Prefix equiv = PrefixDecoder::decode_prefix(byte);
 
         // Not a prefix -- all prefixes have been decoded
         if(equiv == Prefix::INVALID) {
@@ -50,7 +50,7 @@ static size_t decode_one(const std::vector<char>& data, size_t start, uint64_t t
     start += consumed;
 
     // Decode the REX prefix, if it exists
-    RexPrefix rex = decode_rex(data.at(start));
+    RexPrefix rex = PrefixDecoder::decode_rex(data.at(start));
 
     if(rex != RexPrefix::INVALID) {
         // Valid REX -- so one byte was consumed

@@ -2,7 +2,7 @@
 
 namespace tg {
 
-Prefix decode_prefix(unsigned char byte)
+Prefix PrefixDecoder::decode_prefix(unsigned char byte)
 {
     auto raw = static_cast<Prefix>(byte);
 
@@ -24,7 +24,7 @@ Prefix decode_prefix(unsigned char byte)
     }
 }
 
-RexPrefix decode_rex(unsigned char byte)
+RexPrefix PrefixDecoder::decode_rex(unsigned char byte)
 {
     /**
      * Not a valid REX prefix -- ignore
