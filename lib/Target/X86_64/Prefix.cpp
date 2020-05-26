@@ -20,7 +20,7 @@ Prefix PrefixDecoder::decode_prefix(unsigned char byte)
         case Prefix::ADDR_SIZE_OVERRIDE:
             return raw;
         default:
-            return Prefix::INVALID;
+            return Prefix::NONE;
     }
 }
 
@@ -36,7 +36,7 @@ RexPrefix PrefixDecoder::decode_rex(unsigned char byte)
      * requiring a more cumbersome matching process -- see decode_prefix() above.
      */
     if(byte < 0x40 || byte > 0x4f) {
-        return RexPrefix::INVALID;
+        return RexPrefix::NONE;
     }
 
     // Values already correspond -- so just perform a simple static cast

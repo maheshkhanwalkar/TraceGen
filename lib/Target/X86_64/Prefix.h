@@ -51,7 +51,7 @@ enum class Prefix : unsigned char {
     // Invalid prefix
     // This is used during prefix decoding to indicate that the provided byte
     // does not match any prefix. The encoding 0x00 was chosen since it is recognisable
-    INVALID = 0x00
+    NONE = 0x00
 };
 
 
@@ -75,7 +75,7 @@ enum class RexPrefix : unsigned char {
 
     // Invalid REX prefix -- this is used to indicate that
     // the provided byte is not a REX prefix.
-    INVALID = 0xFF
+    NONE = 0xFF
 };
 
 class PrefixDecoder {
