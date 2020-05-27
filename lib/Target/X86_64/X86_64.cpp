@@ -1,5 +1,6 @@
 #include "X86_64.h"
 #include "Prefix.h"
+#include "SingleOp.h"
 
 using namespace tg;
 
@@ -79,8 +80,7 @@ static size_t decode_one(const std::vector<char>& data, size_t start, uint64_t t
          * The byte at data[start] is the opcode (no escape opcode), so
          * it can be analysed directly to find out what it is
          */
-
-        // TODO decode the next byte
+        SingleOpDecoder::decode(prefixes, rex, data, start);
     }
 
     return consumed;
