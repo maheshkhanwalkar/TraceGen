@@ -17,11 +17,9 @@ public:
     /**
      * Decode the addressing mode byte(s) for an instruction
      * @param modRM - byte representing the ModRM section
-     * @param SIB - byte representing the SIB section
      * @return the number of bytes needed for addressing purposes
      */
-    static size_t decode(unsigned char modRM, unsigned char SIB);
-
+    static size_t decode(unsigned char modRM);
 };
 
 }
