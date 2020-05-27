@@ -12,7 +12,7 @@ public:
      * @param modRM - byte representing the ModRM section
      * @return true if SIB is required, false otherwise
      */
-    static bool hasSIB(unsigned char modRM);
+    static inline bool hasSIB(unsigned char modRM);
 
     /**
      * Decode the addressing mode byte(s) for an instruction
